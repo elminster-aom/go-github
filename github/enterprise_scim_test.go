@@ -67,6 +67,67 @@ func TestSCIMEnterpriseGroups_Marshal(t *testing.T) {
 	testJSONMarshal(t, u, want)
 }
 
+func TestSCIMEnterpriseUsers_Marshal(t *testing.T) {
+	t.Parallel()
+	testJSONMarshal(t, &SCIMEnterpriseUsers{}, "{}")
+
+		Schemas      []string                        `json:"schemas"`
+	TotalResults *int                            `json:"totalResults,omitempty"`
+	ItemsPerPage *int                            `json:"itemsPerPage,omitempty"`
+	StartIndex   *int                            `json:"startIndex,omitempty"`
+	Resources    []*SCIMEnterpriseUserAttributes `json:"Resources,omitempty"`
+
+	u := &SCIMEnterpriseGroups{
+		Schemas:      []string{SCIMSchemasURINamespacesListResponse},
+		TotalResults: Ptr(1),
+		ItemsPerPage: Ptr(1),
+		StartIndex:   Ptr(1),
+		Resources: []*SCIMEnterpriseGroupAttributes{{
+			DisplayName: Ptr("gn1"),
+			Members: []*SCIMEnterpriseDisplayReference{{
+				Value:   "idm1",
+				Ref:     "https://api.github.com/scim/v2/enterprises/ee/Users/idm1",
+				Display: Ptr("m1"),
+			}},
+			Schemas:    []string{SCIMSchemasURINamespacesGroups},
+			ExternalID: Ptr("eidgn1"),
+			ID:         Ptr("idgn1"),
+			Meta: &SCIMEnterpriseMeta{
+				ResourceType: "Group",
+				Created:      &Timestamp{referenceTime},
+				LastModified: &Timestamp{referenceTime},
+				Location:     Ptr("https://api.github.com/scim/v2/enterprises/ee/Groups/idgn1"),
+			},
+		}},
+	}
+
+	want := `{
+		"schemas": ["` + SCIMSchemasURINamespacesListResponse + `"],
+        "totalResults": 1,
+        "itemsPerPage": 1,
+        "startIndex": 1,
+        "Resources": [{
+            "schemas": ["` + SCIMSchemasURINamespacesGroups + `"],
+            "id": "idgn1",
+            "externalId": "eidgn1",
+            "displayName": "gn1",
+            "meta": {
+                "resourceType": "Group",
+                "created": ` + referenceTimeStr + `,
+                "lastModified": ` + referenceTimeStr + `,
+                "location": "https://api.github.com/scim/v2/enterprises/ee/Groups/idgn1"
+            },
+            "members": [{
+                "value": "idm1",
+                "$ref": "https://api.github.com/scim/v2/enterprises/ee/Users/idm1",
+                "display": "m1"
+            }]
+        }]
+    }`
+
+	testJSONMarshal(t, u, want)
+}
+
 func TestSCIMEnterpriseGroupAttributes_Marshal(t *testing.T) {
 	t.Parallel()
 	testJSONMarshal(t, &SCIMEnterpriseGroupAttributes{}, "{}")
